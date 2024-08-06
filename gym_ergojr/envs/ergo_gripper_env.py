@@ -1,7 +1,7 @@
 import time
 from random import random, sample
 
-import gym
+import gymnasium as gym
 import numpy as np
 from gym import spaces
 import pybullet as p
