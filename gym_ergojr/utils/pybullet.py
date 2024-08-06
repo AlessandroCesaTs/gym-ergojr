@@ -66,10 +66,12 @@ class Cam(object):
 
         self.proj = p.computeProjectionMatrixFOV(
             fov=fov, aspect=width / height, nearVal=0.1, farVal=0.8)
-
+        """
+        #Alessandro: Commenting out because it's returning false, if it leads to slowing down everything, you could try rebuilding pybullet from source with numpy headers 
         # if this should ever trigger, the official PyPi version (pip install pybullet) is compiled with Numpy headers
         assert p.isNumpyEnabled(
         )  # because if not, copying the pixels of the camera image from C++ to python takes forever
+        """
 
     def snap(self):
         img = p.getCameraImage(
