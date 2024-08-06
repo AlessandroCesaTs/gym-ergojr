@@ -1,6 +1,6 @@
 import os
 
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
