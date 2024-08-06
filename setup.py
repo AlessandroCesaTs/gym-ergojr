@@ -4,6 +4,6 @@ setup(
     name='gym_ergojr',
     version='1.3',
     install_requires=[
-        'gym>=0.2.3', 'pybullet>=1.9.4', 'sklearn', 'scipy', "tqdm",
+        'gym>=0.2.3', 'pybullet>=1.9.4', 'scikit-learn', 'scipy', "tqdm",
         "matplotlib", "numpy"
     ])
