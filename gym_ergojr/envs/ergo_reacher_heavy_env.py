@@ -1,7 +1,7 @@
 import time
 import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 from tqdm import tqdm
 
 from gym_ergojr.sim.objects import Ball

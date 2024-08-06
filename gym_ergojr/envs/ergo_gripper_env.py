@@ -3,7 +3,7 @@ from random import random, sample
 
 import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 import pybullet as p
 from gym_ergojr.sim.objects import Cube
 from gym_ergojr.sim.single_robot import SingleRobot
