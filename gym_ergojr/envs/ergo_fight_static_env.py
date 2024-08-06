@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-from gymnasium import spaces
+from gym import spaces
 
 from gym_ergojr.sim.double_robot import DoubleRobot
 
