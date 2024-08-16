@@ -23,7 +23,7 @@ class DistanceBetweenObjects(object):
             # dist = np.linalg.norm(np.array(self.goal)-np.array(rt[3]))
             if self.goal is not None:
                 dist = np.linalg.norm(
-                    np.array(self.goal)[:2] - np.array(posA[0])[:2])
+                    np.array(self.goal) - np.array(posA[0])) #originally it took only the first 2 coordinates i don't know why
             else:
                 posB = p.getLinkState(
                     bodyUniqueId=self.bodyB, linkIndex=self.linkB)
