@@ -6,7 +6,7 @@ setup(
     install_requires=[
         'gymnasium', 'pybullet>=1.9.4', 'scikit-learn', 'scipy', "tqdm",
         "matplotlib", "numpy"
-    ]
+    ],
     include_package_data=True,
-    package_data={'gym_ergojr':['scenes/*.xml']}
+    package_data={'gym_ergojr':['scenes/*.xml']},
     )
