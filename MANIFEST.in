@@ -1,3 +1,10 @@
 include *.xml
 recursive-include gym_ergojr *.xml
 
+include *.mtl
+recursive-include gym_ergojr *.mtl
+
+include *.obj
+recursive-include gym_ergojr *.obj
+
+
