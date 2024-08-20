@@ -1,0 +1,3 @@
+include *.xml
+recursive-include gym_ergojr *.xml
+
