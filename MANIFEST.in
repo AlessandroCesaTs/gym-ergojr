@@ -7,4 +7,11 @@ recursive-include gym_ergojr *.mtl
 include *.obj
 recursive-include gym_ergojr *.obj
 
+include *.gif
+recursive-include gym_ergojr *.gif
+
+include *.png
+recursive-include gym_ergojr *.png
+
+
 

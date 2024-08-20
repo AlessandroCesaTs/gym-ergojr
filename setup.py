@@ -8,5 +8,5 @@ setup(
         "matplotlib", "numpy"
     ],
     include_package_data=True,
-    package_data={'gym_ergojr':['scenes/*.xml','scenes/*mtl','scenes/*obj']},
+    package_data={'gym_ergojr':['scenes/*.xml','scenes/*mtl','scenes/*obj','scenes/*png','scenes/*gif']},
     )
