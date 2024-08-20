@@ -24,9 +24,9 @@ PUSHER_PUCK_Y_NORM = [
 
 class Ball(object):
 
-    def __init__(self, scaling=0.02):
+    def __init__(self, scaling=0.02,color=None):
         self.scaling = scaling
-        xml_path = get_scene("ball")
+        xml_path = get_scene("ball") if color is None else get_scene("ball_"+color)
         self.ball_file = URDF(xml_path, force_recompile=False).get_path()
         self.hard_reset()
 
