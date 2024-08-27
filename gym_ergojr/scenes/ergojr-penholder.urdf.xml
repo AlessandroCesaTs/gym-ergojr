@@ -12,18 +12,6 @@
   <material name="blue">
     <color rgba="0 0 1 1"/>
   </material>
-  <material name="white">
-    <color rgba="1 1 1 1"/>
-  </material>
-  <material name="black">
-    <color rgba="0 0 0 1"/>
-  </material>
-  <material name="red">
-    <color rgba="1 0 0 1"/>
-  </material>
-  <material name="blue">
-    <color rgba="0 0 1 1"/>
-  </material>
   <link name="1_anchor">
     <inertial>
       <mass value="1"/>
