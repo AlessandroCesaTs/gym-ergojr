@@ -1,5 +1,9 @@
 from gym_ergojr.sim.abstract_robot import AbstractRobot
 import numpy as np
+import os
+
+
+urdf_default_dir=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scenes')
 
 
 class SingleRobot(AbstractRobot):
@@ -13,14 +17,15 @@ class SingleRobot(AbstractRobot):
                  new_backlash=None,
                  silent=False,
                  gripper=False,
-                 reset=True):
+                 reset=True,
+                 urdf_dir=urdf_default_dir):
         self.robot_model = robot_model
         if backlash:
             self.robot_model += "-backlash"
         if heavy:
             self.robot_model += "-heavy"
         super().__init__(debug, frequency, backlash, heavy, new_backlash,
-                         silent, gripper)
+                         silent, gripper,urdf_dir=urdf_dir)
         self.rest_pos = [0, 0, 0, 0, 0, 0]
         if reset:
             self.hard_reset()

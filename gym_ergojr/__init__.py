@@ -5,8 +5,9 @@ from gymnasium.envs.registration import register
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
-def get_scene(name):
-    return os.path.join(_ROOT, "scenes", name)
+def get_scene(name=None,urdf_dir=os.path.join(_ROOT, "scenes")):
+    return os.path.join(urdf_dir, name)
+
 
 
 for headlessness in ["Graphical", "Headless"]:

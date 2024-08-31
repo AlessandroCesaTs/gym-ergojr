@@ -1,3 +1,4 @@
+import os
 from gym_ergojr import get_scene
 from gym_ergojr.utils.pybullet import DistanceBetweenObjects
 from gym_ergojr.utils.urdf_helper import URDF
@@ -21,12 +22,13 @@ PUSHER_PUCK_Y_NORM = [
     max(PUSHER_PUCK_Y[1], PUSHER_PUCK_Y[1])
 ]
 
+urdf_default_dir=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scenes')
 
 class Ball(object):
 
-    def __init__(self, scaling=0.02,color=None):
+    def __init__(self,urdf_dir=urdf_default_dir, scaling=0.02,color=None):
         self.scaling = scaling
-        xml_path = get_scene("ball") if color is None else get_scene("ball_"+color)
+        xml_path = get_scene("ball",urdf_dir) if color is None else get_scene("ball_"+color,urdf_dir)
         self.ball_file = URDF(xml_path, force_recompile=False).get_path()
         self.hard_reset()
 

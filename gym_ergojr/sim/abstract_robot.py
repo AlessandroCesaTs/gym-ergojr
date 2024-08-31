@@ -3,7 +3,7 @@ import pybullet as p
 import time
 import pybullet_data
 import numpy as np
-import os.path as osp
+import os
 from gym_ergojr import get_scene
 from gym_ergojr.utils.libstfu import stdout_redirected, stdout_noop
 from gym_ergojr.utils.urdf_helper import URDF
@@ -18,6 +18,8 @@ MOTOR_DIRECTIONS_PUSHER = [1, 1, 1]  # how do the motors turn on real pusher
 NAMESPACE = {'xacro': 'http://www.ros.org/wiki/xacro'}  # add more as needed
 et.register_namespace("xacro", NAMESPACE["xacro"])
 
+urdf_default_dir=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scenes')
+
 
 class AbstractRobot():
 
@@ -28,7 +30,8 @@ class AbstractRobot():
                  heavy=False,
                  new_backlash=None,
                  silent=False,
-                 gripper=False):
+                 gripper=False,
+                 urdf_dir=urdf_default_dir):
         self.debug = debug
         self.frequency = frequency
         self.backlash = backlash
@@ -36,6 +39,7 @@ class AbstractRobot():
         self.gripper = gripper
         self.new_backlash = new_backlash
         self.output_handler = stdout_noop
+        self.urdf_dir=urdf_dir
         if silent:
             self.output_handler = stdout_redirected
 
@@ -78,7 +82,7 @@ class AbstractRobot():
         # rotating a standing cylinder around the y axis, puts it flat onto the x axis
 
         with self.output_handler():
-            xml_path = get_scene(robot_model)
+            xml_path = get_scene(robot_model,urdf_dir=self.urdf_dir)
 
             if self.new_backlash is not None:
                 robot_file = self.update_backlash(xml_path)
@@ -258,10 +262,10 @@ class AbstractRobot():
         p.setTimeStep(1 / self.frequency)
         p.setRealTimeSimulation(0)
         if not self.heavy:
-            p.loadURDF(URDF(get_scene("plane")).get_path())
+            p.loadURDF(URDF(get_scene("plane",urdf_dir=self.urdf_dir)).get_path())
             # pass
         else:
-            p.loadURDF(URDF(get_scene("plane-big.urdf.xml")).get_path())
+            p.loadURDF(URDF(get_scene("plane-big.urdf.xml",urdf_dir=self.urdf_dir)).get_path())
 
     def set_text(self, text=None):
         if self.debug_text is not None:
