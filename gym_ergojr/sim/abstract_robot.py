@@ -63,8 +63,9 @@ class AbstractRobot():
         self.robots = []
         if not self.heavy:
             self.motor_ids = [
-                3, 4, 6, 8, 10, 12
+                3, 4, 6, 8, 10
             ]  # this is consistent across different normal robots
+            self.limit=1.570796326795
         if self.heavy:
             self.motor_ids = [
                 3, 6, 9, 12, 15, 18
@@ -152,7 +153,6 @@ class AbstractRobot():
              max_force=None,
              max_vel=None,
              positionGain=None):
-        actions_clipped = self.clip_action(actions)
         if self.heavy and positionGain is None:
             positionGain = .2
 
@@ -164,7 +164,7 @@ class AbstractRobot():
 
         force = self.float2list(max_force)
         vel = self.float2list(max_vel)
-        for idx, act in enumerate(actions_clipped):
+        for idx, act in enumerate(actions):
             if positionGain is None:
                 p.setJointMotorControl2(
                     self.robots[robot_id],
@@ -187,10 +187,9 @@ class AbstractRobot():
         obs = p.getJointStates(self.robots[robot_id], self.motor_ids)
         pos = [x[0] for x in obs]
         vel = [x[1] for x in obs]
-        return self.normalize(np.array(pos + vel))
+        return np.array(pos + vel)
 
     def normalize(self, posvel):
-        assert len(posvel) == 12
         norm_max_vel = NORM_VEL["default" if not self.heavy else "heavy"]
 
         pos_norm = (posvel[:6] + np.pi / 2) / np.pi
@@ -217,18 +216,16 @@ class AbstractRobot():
         # !IMPORTANT set != act2... if you want the robot to stay in place
         # you also have to call act2 to set the target position
 
-        assert len(posvel) == 12
-        posvel_clipped = np.array(np.clip(posvel, -1, 1)).astype(np.float64)
-        posvel_clipped[:6] *= np.pi / 2
-        posvel_clipped[:6] = np.multiply(posvel_clipped[:6],
-                                         MOTOR_DIRECTIONS_DEFAULT)
+        num_of_joints=len(posvel)//2
 
-        for i in range(6):
+        clipped_posvel= np.array(np.clip(posvel, -self.limit, self.limit)).astype(np.float64)
+
+        for i in range(num_of_joints-1):
             p.resetJointState(
                 self.robots[robot_id],
                 self.motor_ids[i],
-                targetValue=posvel_clipped[i],
-                targetVelocity=posvel_clipped[i + 6])
+                targetValue=posvel[i],
+                targetVelocity=posvel[i + num_of_joints])
 
     def get_hits(self, robot1=0, robot2=1, links=None):
         if robot1 is None:
@@ -274,170 +271,3 @@ class AbstractRobot():
             self.debug_text = p.addUserDebugText(
                 text, [.1, -.1, .12], textColorRGB=[1, 0, 0], textSize=6)
 
-
-class PusherRobot():
-
-    def __init__(self, debug=False, frequency=100, silent=False):
-        self.debug = debug
-        self.frequency = frequency
-        self.output_handler = stdout_noop
-
-        self.rest_pos = [-.5, 1, .5, 0, 0, 0]
-
-        if silent:
-            self.output_handler = stdout_redirected
-
-        with self.output_handler():
-            if debug:
-                p.connect(p.GUI)
-                p.resetDebugVisualizerCamera(
-                    cameraDistance=0.4,
-                    cameraYaw=135,
-                    cameraPitch=-35,
-                    cameraTargetPosition=[0, 0.05, 0])
-            else:
-                p.connect(p.DIRECT)
-
-        p.setAdditionalSearchPath(
-            pybullet_data.getDataPath())  # optional for ground
-
-        self.robot = None
-        self.motor_ids = [1, 3, 5]
-        self.debug_text = None
-
-        # # GYM env has to do this
-        # self.hard_reset()
-
-    def addModel(self, robot_model, pose=None):
-        if pose is None:
-            pose = [0, 0, 0, 0, 0, 0]
-        startPos = pose[:3]  # RGB = xyz
-        startOrientation = p.getQuaternionFromEuler(pose[3:])
-        # rotated around which axis? # np.deg2rad(90)
-        # rotating a standing cylinder around the y axis, puts it flat onto the x axis
-
-        with self.output_handler():
-            xml_path = get_scene(robot_model)
-
-            robot_file = URDF(xml_path, force_recompile=True).get_path()
-
-            robot_id = p.loadURDF(
-                robot_file, startPos, startOrientation, useFixedBase=1)
-            self.robot = robot_id
-
-            if self.debug:
-                print(robot_model)
-                for i in range(p.getNumJoints(robot_id)):
-                    print(p.getJointInfo(robot_id, i))
-
-        return robot_id
-
-    def clip_action(self, actions):
-        assert len(actions) == 3
-        return np.multiply(np.pi / 2 * np.clip(actions, -1, 1),
-                           MOTOR_DIRECTIONS_PUSHER)
-
-    def float2list(self, val):
-        if type(val) == type(1) or type(val) == type(1.0):
-            return [val] * 3
-        elif type(val) == type([]) or type(val) == type(np.array([])):
-            assert len(val) == 3
-            return val
-        else:
-            raise Exception(
-                "the value '{}' should either be float, int or list but it's {}"
-                .format(val, type(val)))
-
-    def act(self, actions, max_force=None, max_vel=None, positionGain=None):
-        actions = np.array(actions) + np.array(self.rest_pos[:3])
-        actions_clipped = self.clip_action(actions)
-
-        if max_force is None:
-            max_force = MAX_FORCE["default"]
-
-        if max_vel is None:
-            max_vel = MAX_VEL["default"]
-
-        force = self.float2list(max_force)
-        vel = self.float2list(max_vel)
-        for idx, act in enumerate(actions_clipped):
-            if positionGain is None:
-                p.setJointMotorControl2(
-                    self.robot,
-                    self.motor_ids[idx],
-                    p.POSITION_CONTROL,
-                    targetPosition=act,
-                    force=force[idx],
-                    maxVelocity=vel[idx])
-            else:
-                p.setJointMotorControl2(
-                    self.robot,
-                    self.motor_ids[idx],
-                    p.POSITION_CONTROL,
-                    targetPosition=act,
-                    force=force[idx],
-                    maxVelocity=vel[idx],
-                    positionGain=positionGain)
-
-    def observe(self):
-        obs = p.getJointStates(self.robot, self.motor_ids)
-        pos = [x[0] for x in obs]
-        vel = [x[1] for x in obs]
-        return self.normalize(np.array(pos + vel))
-
-    def normalize(self, posvel):
-        assert len(posvel) == 6
-        norm_max_vel = NORM_VEL["default"]
-
-        pos_norm = (posvel[:3] + np.pi / 2) / np.pi
-        vel_norm = (posvel[3:] + norm_max_vel) / (norm_max_vel * 2)
-        posvel_norm = np.hstack((pos_norm, vel_norm))
-        posvel_shifted = posvel_norm * 2 - 1
-        posvel_shifted[:3] = np.multiply(posvel_shifted[:3],
-                                         MOTOR_DIRECTIONS_PUSHER)
-
-        return posvel_shifted
-
-    def close(self):
-        p.disconnect()
-
-    def step(self):
-        p.stepSimulation()
-
-    def set(self, posvel):
-        # !IMPORTANT set != act2... if you want the robot to stay in place
-        # you also have to call act2 to set the target position
-
-        assert len(posvel) == 6
-        posvel_clipped = np.array(np.clip(posvel, -1, 1)).astype(np.float64)
-        posvel_clipped[:3] *= np.pi / 2
-        posvel_clipped[:3] = np.multiply(posvel_clipped[:3],
-                                         MOTOR_DIRECTIONS_PUSHER)
-
-        for i in range(3):
-            p.resetJointState(
-                self.robot,
-                self.motor_ids[i],
-                targetValue=posvel_clipped[i],
-                targetVelocity=posvel_clipped[i + 3])
-
-    def rest(self):
-        self.set(self.rest_pos)
-
-    def hard_reset(self):
-        p.resetSimulation()
-        p.setGravity(0, 0, -10)
-        p.setTimeStep(1 / self.frequency)
-        p.setRealTimeSimulation(0)
-        p.loadURDF(URDF(get_scene("plane")).get_path())
-        self.addModel("ergojr-pusher")
-
-
-if __name__ == '__main__':
-
-    pusher = PusherRobot(debug=True)
-    pusher.rest()
-    pusher.act(pusher.rest_pos[:3])
-    for _ in range(20 * 100):
-        pusher.step()
-        time.sleep(1 / 100)
