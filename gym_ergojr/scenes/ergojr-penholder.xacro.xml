@@ -197,7 +197,7 @@
         </inertial>
     </link>
 
-    <joint name="1_motor6joint" type="revolute">
+    <joint name="1_motor6joint" type="fixed">
         <parent link="1_motor5bridge6"/>
         <child link="1_motor6link"/>
         <origin xyz="0 0.020 0"/>
@@ -229,8 +229,3 @@
     </link>
 
 </robot>
-        </inertial>
-    </link>
-
-</robot>
-
