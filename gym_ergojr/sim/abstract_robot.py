@@ -63,7 +63,7 @@ class AbstractRobot():
         self.robots = []
         if not self.heavy:
             self.motor_ids = [
-                3, 4, 6, 8, 10
+                3, 4, 6, 8, 10,12
             ]  # this is consistent across different normal robots
             self.limit=1.570796326795
         if self.heavy:
