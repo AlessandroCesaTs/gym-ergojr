@@ -197,10 +197,12 @@
         </inertial>
     </link>
 
-    <joint name="1_motor6joint" type="fixed">
+    <joint name="1_motor6joint" type="revolute">
         <parent link="1_motor5bridge6"/>
         <child link="1_motor6link"/>
         <origin xyz="0 0.020 0"/>
+        <limit effort="100.0" lower="-${pihalf}" upper="${pihalf}" velocity="0.5"/>
+        <axis xyz="1 0 0"/>
     </joint>
 
     <link name="1_motor6link">
@@ -223,6 +225,10 @@
             <mass value=".004"/>
             <inertia ixx="1e-5" iyy="1e-5" izz="1e-5"/>
             <!--<inertia ixx="0.4" ixy="0.0" ixz="0.0" iyy="0.4" iyz="0.0" izz="0.2"/>-->
+        </inertial>
+    </link>
+
+</robot>
         </inertial>
     </link>
 
